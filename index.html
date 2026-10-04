@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ECE9E4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151312" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Programme de boxe sur 21 jours : seances detaillees, video du jour, suivi des seances et journal de poids.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="21 Jours">
+<title>21 Jours Avant le Club</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<style>
+  /* Layout: fiche d'entraînement — en-tête collant avec compteur, onglets semaine, pile de cartes-jour dépliables, journal de poids en bas */
+  :root {
+    --bg: #ECE9E4;
+    --surface: #F8F6F3;
+    --surface-2: #E3DFD8;
+    --fg: #1A1715;
+    --muted: #6D655E;
+    --line: #D3CDC4;
+    --line-strong: #B9B1A6;
+    --accent: #B3312A;
+    --accent-soft: #F0DAD6;
+    --brass: #8F6F2C;
+    --ok: #3E6B4B;
+    --ok-soft: #DBE6DC;
+
+    --f-display: "Oswald", "Arial Narrow", sans-serif;
+    --f-body: "Barlow", system-ui, sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151312;
+      --surface: #201D1B;
+      --surface-2: #2A2624;
+      --fg: #EDE9E4;
+      --muted: #9D958D;
+      --line: #322D2A;
+      --line-strong: #474039;
+      --accent: #E2574C;
+      --accent-soft: #3A1E1B;
+      --brass: #C9A24D;
+      --ok: #62A071;
+      --ok-soft: #1D2A20;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151312;
+    --surface: #201D1B;
+    --surface-2: #2A2624;
+    --fg: #EDE9E4;
+    --muted: #9D958D;
+    --line: #322D2A;
+    --line-strong: #474039;
+    --accent: #E2574C;
+    --accent-soft: #3A1E1B;
+    --brass: #C9A24D;
+    --ok: #62A071;
+    --ok-soft: #1D2A20;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 740px; margin: 0 auto; padding-inline: 18px; padding-block: 0 56px; }
+
+  /* ---- en-tête ---- */
+  header.top {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 20;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .top-in { max-width: 740px; margin: 0 auto; padding: 14px 18px 12px; }
+  .kicker {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 2px;
+  }
+  h1 {
+    font-family: var(--f-display); font-weight: 600; font-size: clamp(27px, 7vw, 38px);
+    line-height: 1; letter-spacing: .005em; margin: 0 0 10px; text-wrap: balance;
+    text-transform: uppercase;
+  }
+  .meter { display: flex; align-items: center; gap: 10px; }
+  .bar { flex: 1; min-width: 0; height: 7px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .35s ease; }
+  .meter-n { font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+
+  /* ---- bandeau chiffres ---- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin: 22px 0 26px; }
+  .stat { background: var(--surface); padding: 12px 13px; min-width: 0; }
+  .stat dt { font-family: var(--f-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; }
+  .stat dd { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: 23px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat dd small { font-family: var(--f-body); font-size: 12px; font-weight: 400; color: var(--muted); display: block; margin-top: 2px; line-height: 1.3; }
+
+  .lede { font-size: 16.5px; color: var(--fg); margin: 0 0 8px; }
+  .lede + p { color: var(--muted); font-size: 15px; margin: 0 0 4px; }
+
+  .start { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin: 20px 0 30px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); }
+  .start label { font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  input[type="date"], input[type="number"] {
+    font-family: var(--f-mono); font-size: 14px; padding: 7px 9px;
+    background: var(--bg); color: var(--fg); border: 1px solid var(--line-strong); border-radius: 3px;
+  }
+  .start .hint { font-size: 13.5px; color: var(--muted); }
+  .start .hint b { color: var(--accent); font-family: var(--f-mono); }
+
+  /* ---- onglets ---- */
+  .tabs { display: flex; gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 0; }
+  .tabs button {
+    flex: 1; min-width: 0; font-family: var(--f-display); text-transform: uppercase;
+    font-size: 13px; font-weight: 500; letter-spacing: .06em;
+    padding: 11px 6px 10px; background: var(--surface); color: var(--muted);
+    border: 0; cursor: pointer; line-height: 1.15;
+  }
+  .tabs button span { display: block; font-family: var(--f-body); text-transform: none; letter-spacing: 0; font-size: 11.5px; font-weight: 400; margin-top: 3px; }
+  .tabs button[aria-selected="true"] { background: var(--fg); color: var(--bg); }
+  .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  /* ---- panneau semaine ---- */
+  .weekhead { border: 1px solid var(--line); border-top: 0; background: var(--surface); padding: 16px 16px 15px; }
+  .weekhead h2 { font-family: var(--f-display); text-transform: uppercase; font-weight: 600; font-size: 19px; margin: 0 0 10px; letter-spacing: .02em; }
+  .weekhead .charge { font-family: var(--f-mono); font-size: 12px; color: var(--muted); margin: 0 0 12px; font-variant-numeric: tabular-nums; }
+  .goals { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+  .goals li { display: grid; grid-template-columns: 16px 1fr; gap: 9px; font-size: 14.5px; }
+  .goals li::before { content: "→"; color: var(--accent); font-family: var(--f-mono); }
+  .focus { margin: 13px 0 0; padding: 11px 12px; background: var(--accent-soft); font-size: 14px; }
+  .focus b { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; font-size: 12px; display: block; margin-bottom: 3px; color: var(--accent); }
+
+  /* ---- jours ---- */
+  .days { display: grid; gap: 9px; margin: 22px 0 0; }
+  .day { border: 1px solid var(--line); background: var(--surface); }
+  .day.is-today { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .day.is-rest { background: transparent; border-style: dashed; }
+  .day-top { display: flex; align-items: center; gap: 11px; padding: 11px 13px; }
+  .daynum { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .08em; color: var(--muted); width: 46px; flex: none; font-variant-numeric: tabular-nums; }
+  .day.is-today .daynum { color: var(--accent); font-weight: 600; }
+  .dayname { flex: 1; min-width: 0; font-family: var(--f-display); text-transform: uppercase; font-weight: 500; font-size: 15px; letter-spacing: .03em; }
+  .dayname em { font-style: normal; font-family: var(--f-body); text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--muted); display: block; font-weight: 400; margin-top: 1px; }
+  .vlink {
+    display: inline-flex; align-items: baseline; gap: 6px; margin-top: 5px;
+    font-family: var(--f-body); text-transform: none; letter-spacing: 0; font-weight: 500;
+    font-size: 13.5px; color: var(--accent); text-decoration: none;
+    border-bottom: 1px solid currentColor; line-height: 1.3;
+  }
+  .vlink::before { content: "▶"; font-size: 9px; border-bottom: 0; }
+  .vlink:hover { background: var(--accent-soft); }
+  .vlink:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pill { font-family: var(--f-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 7px; border: 1px solid var(--line-strong); color: var(--muted); flex: none; }
+  .pill.c-a { border-color: var(--accent); color: var(--accent); }
+  .pill.c-b { border-color: var(--brass); color: var(--brass); }
+  .pill.c-c { border-color: var(--line-strong); }
+  .toggle { font-family: var(--f-mono); font-size: 18px; line-height: 1; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 4px 2px; flex: none; }
+  .chk { display: flex; align-items: center; gap: 6px; flex: none; cursor: pointer; }
+  .chk input { width: 19px; height: 19px; accent-color: var(--ok); cursor: pointer; }
+  .day.done { background: var(--ok-soft); }
+  .day.done .dayname { text-decoration: line-through; text-decoration-color: var(--line-strong); }
+
+  .day-body { border-top: 1px solid var(--line); padding: 14px 13px 16px; }
+  .blocks { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; border: 1px solid var(--line); }
+  .blocks li { display: grid; grid-template-columns: 24px 1fr auto; gap: 11px; padding: 10px 11px; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .blocks li:last-child { border-bottom: 0; }
+  .blocks .bn { font-family: var(--f-mono); font-size: 11px; color: var(--accent); font-weight: 600; }
+  .blocks .bt { min-width: 0; }
+  .blocks .bt strong { font-family: var(--f-display); text-transform: uppercase; font-weight: 500; font-size: 13.5px; letter-spacing: .04em; display: block; }
+  .blocks .bt span { font-size: 14px; color: var(--muted); }
+  .blocks .bd { font-family: var(--f-mono); font-size: 12px; color: var(--fg); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .vid { margin: 13px 0 0; padding: 11px 12px; border: 1px solid var(--line-strong); display: grid; gap: 3px; }
+  .vid .lbl { font-family: var(--f-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .vid a { color: var(--accent); font-weight: 500; text-decoration: none; border-bottom: 1px solid currentColor; font-size: 14.5px; }
+  .vid a:hover { background: var(--accent-soft); }
+  .vid p { margin: 4px 0 0; font-size: 13.5px; color: var(--muted); }
+
+  /* ---- sections ---- */
+  section.panel { margin-top: 40px; }
+  section.panel > h2 {
+    font-family: var(--f-display); text-transform: uppercase; font-size: 20px; font-weight: 600;
+    letter-spacing: .03em; margin: 0 0 4px; padding-bottom: 8px; border-bottom: 2px solid var(--fg);
+  }
+  section.panel > .sub { color: var(--muted); font-size: 14.5px; margin: 10px 0 16px; }
+
+  .weighin { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin-bottom: 16px; }
+  .btn {
+    font-family: var(--f-display); text-transform: uppercase; letter-spacing: .06em; font-weight: 500;
+    font-size: 13px; padding: 9px 15px; background: var(--fg); color: var(--bg);
+    border: 0; cursor: pointer;
+  }
+  .btn:hover { background: var(--accent); }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line-strong); }
+  .btn.ghost:hover { background: var(--surface-2); color: var(--fg); }
+
+  table.log { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  table.log th { font-family: var(--f-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0 10px 7px 0; font-weight: 500; }
+  table.log td { padding: 9px 10px 9px 0; border-top: 1px solid var(--line); font-family: var(--f-mono); font-size: 14px; }
+  table.log td.delta.down { color: var(--ok); }
+  table.log td.delta.up { color: var(--accent); }
+  table.log td.act { text-align: right; }
+  table.log button { background: none; border: 0; color: var(--muted); cursor: pointer; font-family: var(--f-mono); font-size: 12px; padding: 2px 4px; }
+  table.log button:hover { color: var(--accent); }
+  .empty { padding: 15px 0; color: var(--muted); font-size: 14.5px; }
+
+  .macros { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 18px; }
+  .macro { background: var(--surface); padding: 11px 12px; min-width: 0; }
+  .macro dt { font-family: var(--f-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .macro dd { margin: 0; font-family: var(--f-display); font-size: 21px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  .meals { margin: 0; padding: 0; list-style: none; border: 1px solid var(--line); }
+  .meals li { display: grid; grid-template-columns: 118px 1fr; gap: 12px; padding: 11px 12px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .meals li:last-child { border-bottom: 0; }
+  .meals .when { font-family: var(--f-mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+
+  .rules { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 11px; counter-reset: r; }
+  .rules li { display: grid; grid-template-columns: 26px 1fr; gap: 11px; font-size: 14.5px; counter-increment: r; }
+  .rules li::before { content: counter(r); font-family: var(--f-mono); font-size: 12px; color: var(--accent); border: 1px solid var(--accent); width: 22px; height: 22px; display: grid; place-items: center; }
+
+  .warn { margin-top: 18px; padding: 13px 14px; border-left: 3px solid var(--brass); background: var(--surface); font-size: 14.5px; }
+  .warn b { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .05em; font-size: 12.5px; display: block; margin-bottom: 4px; color: var(--brass); }
+
+  .sync { margin-top: 30px; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); letter-spacing: .03em; }
+
+  footer.end { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+  footer.end p { margin: 0 0 6px; }
+
+  @media (max-width: 460px) {
+    .stats { grid-template-columns: 1fr; }
+    .meals li { grid-template-columns: 1fr; gap: 3px; }
+    .blocks li { grid-template-columns: 20px 1fr; }
+    .blocks .bd { grid-column: 2; }
+    .daynum { width: 40px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <p class="kicker">Toulouse · avant inscription en club</p>
+    <h1>21 Jours Avant le Club</h1>
+    <div class="meter">
+      <div class="bar"><i id="barfill"></i></div>
+      <div class="meter-n" id="metern">0 / 18 séances</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <dl class="stats">
+    <div class="stat"><dt>Départ</dt><dd>83,5 kg<small>1,80 m · base muscu 3 ans</small></dd></div>
+    <div class="stat"><dt>Visé à J21</dt><dd id="s-target">81,4 kg<small>−0,7 kg par semaine</small></dd></div>
+    <div class="stat"><dt>Dernière pesée</dt><dd id="s-last">—<small id="s-last-sub">aucune pesée enregistrée</small></dd></div>
+  </dl>
+
+  <p class="lede">Trois semaines, 18 séances, un objectif : arriver au club avec du gaz anaérobie, des jambes, et une garde qui tient trois minutes.</p>
+  <p>Le poids, c'est l'assiette. L'entraînement, c'est ce que le coach pourra exploiter dès le premier jour au lieu de te faire courir.</p>
+
+  <div class="start">
+    <label for="startdate">Premier jour</label>
+    <input type="date" id="startdate">
+    <span class="hint" id="starthint">Choisis ta date de départ pour voir le jour en cours.</span>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Semaines">
+    <button role="tab" id="tab-1" aria-selected="true" aria-controls="week-1">Semaine 1<span>Garde et déplacements</span></button>
+    <button role="tab" id="tab-2" aria-selected="false" aria-controls="week-2">Semaine 2<span>Jab, direct, crochets</span></button>
+    <button role="tab" id="tab-3" aria-selected="false" aria-controls="week-3">Semaine 3<span>Uppercuts et esquives</span></button>
+  </div>
+
+  <div id="weekhead"></div>
+  <div class="days" id="days"></div>
+
+  <section class="panel">
+    <h2>Journal de poids</h2>
+    <p class="sub">Une pesée par semaine, le matin à jeun, même jour. Pas tous les jours : le poids fluctue d'un à deux kilos et ça démoralise pour rien.</p>
+    <div class="weighin">
+      <input type="date" id="w-date" aria-label="Date de la pesée">
+      <input type="number" id="w-kg" step="0.1" min="40" max="200" placeholder="kg" aria-label="Poids en kilos" style="width:96px">
+      <button class="btn" id="w-add">Enregistrer</button>
+      <button class="btn ghost" id="export" type="button">Sauvegarder le suivi</button>
+    </div>
+    <div id="logwrap"></div>
+  </section>
+
+  <section class="panel">
+    <h2>L'assiette</h2>
+    <p class="sub">2 400 à 2 500 kcal par jour. C'est 80 % du résultat sur le gras — aucune série supplémentaire ne compensera une assiette approximative.</p>
+    <dl class="macros">
+      <div class="macro"><dt>Calories</dt><dd>2 450</dd></div>
+      <div class="macro"><dt>Protéines</dt><dd>160 g</dd></div>
+      <div class="macro"><dt>Lipides</dt><dd>70 g</dd></div>
+      <div class="macro"><dt>Glucides</dt><dd>280 g</dd></div>
+    </dl>
+    <ul class="meals">
+      <li><span class="when">Petit-déjeuner</span><span>4 œufs · 60 g de pain complet · 1 fruit</span></li>
+      <li><span class="when">Collation</span><span>400 g de skyr ou fromage blanc 0 % · 30 g d'amandes</span></li>
+      <li><span class="when">Déjeuner</span><span>200 g de viande hachée 5 % · 80 g de riz ou semoule (poids sec) · légumes à volonté · 1 c. à soupe d'huile d'olive</span></li>
+      <li><span class="when">Avant séance</span><span>1 banane ou 3 dattes</span></li>
+      <li><span class="when">Dîner</span><span>200 g de poisson blanc ou thon · légumes · 50 g de féculents</span></li>
+      <li><span class="when">Eau</span><span>3 litres par jour, et tu bois pendant la séance</span></li>
+    </ul>
+    <ol class="rules">
+      <li>Les sources s'échangent librement entre elles — viande hachée 5 %, poisson blanc, thon, œufs — mais les quantités restent. Pas de poulet : ce plan n'en contient pas.</li>
+      <li>Si tu stagnes deux semaines d'affilée, enlève 200 kcal. Si tu perds plus d'un kilo par semaine, rajoutes-en 200.</li>
+      <li>Sept à huit heures de sommeil, à heures fixes. En déficit, le manque de sommeil fait perdre du muscle à la place du gras.</li>
+    </ol>
+    <div class="warn">
+      <b>Le piège</b>
+      À 83,5 kg et avec de la corde tous les jours, les mollets, les tibias et les tendons d'Achille prennent cher. Chaussures correctes, jamais pieds nus sur du carrelage ou du béton. Une douleur pointue au tibia : tu passes la corde en marche rapide deux ou trois jours. Une périostite en semaine 2 coûterait tout le mois.
+    </div>
+    <div class="warn">
+      <b>La course</b>
+      Le 8 km est placé sur le jour allégé de chaque semaine, et il remplace la corde ce jour-là — il ne s'y ajoute pas. Une séance de corde représente environ 2 500 à 3 000 contacts au sol, un 8 km en ajoute 7 000 à 8 000 : empilés le même jour, c'est le tibia qui paie. Un deuxième run dans la semaine est possible à partir de la semaine 2, sur le jour de repos et seulement si tu n'as senti aucune gêne aux tibias. En semaine 1, le jour de repos reste un vrai repos.
+    </div>
+  </section>
+
+  <p class="sync" id="sync">Progression stockée sur cet appareil.</p>
+
+  <footer class="end">
+    <p>Les deux jours sans charge de chaque semaine ne sont pas négociables : en déficit calorique, tu récupères moins bien que d'habitude, et c'est pendant le repos que le corps encaisse.</p>
+    <p>Pas d'auto-apprentissage du Dempsey Roll ici. Les jambes et les bases maintenant ; le coach donnera la suite.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var START_KG = 83.5;
+  var TARGET_KG = 81.4;
+
+  /* ---------- contenu du plan ---------- */
+
+  var WEEKS = [
+    {
+      n: 1,
+      theme: "Garde et déplacements",
+      corde: "15 min continu", shadow: "5 × 3 min", elast: "3 × 2 min",
+      rounds: 4, inter: "10 × (30 s / 30 s)",
+      goals: [
+        "Tenir les 5 rounds de shadow sans que les mains descendent une seule fois.",
+        "Les 15 min de corde en continu deviennent un échauffement, pas un effort.",
+        "Fin de semaine : 82,8 kg."
+      ],
+      focus: "La garde et les pieds. Rien d'autre. Mains aux pommettes, menton rentré, coudes collés. Pas glissés, jamais les pieds qui se croisent, jamais qui se collent."
+    },
+    {
+      n: 2,
+      theme: "Jab, direct, crochets",
+      corde: "18 min continu", shadow: "5 × 3 min", elast: "4 × 2 min",
+      rounds: 4, inter: "12 × (30 s / 30 s)",
+      goals: [
+        "Le 1-2 avec retour de main systématique et pivot du pied arrière.",
+        "20 double unders d'affilée.",
+        "Fin de semaine : 82,1 kg."
+      ],
+      focus: "Le jab part du menton et la main revient toujours à la garde. Cent coups lents et propres valent cinq cents rapides et sales."
+    },
+    {
+      n: 3,
+      theme: "Uppercuts et esquives",
+      corde: "20 min continu", shadow: "6 × 3 min", elast: "5 × 2 min",
+      rounds: 5, inter: "14 × (30 s / 30 s)",
+      goals: [
+        "Enchaîner esquive rotative puis crochet au corps sans temps mort.",
+        "Pistol squat 8 répétitions par jambe.",
+        "Fin de semaine : 81,4 kg."
+      ],
+      focus: "L'esquive rotative, c'est le mouvement en U : genoux fléchis, la tête passe de côté, puis retour au corps. C'est la racine du roulement — la vraie, celle qui se construit avec les jambes."
+    }
+  ];
+
+  var CIRCUITS = {
+    A: {
+      name: "Circuit A — jambes",
+      1: ["Fentes bulgares 12 par jambe, tempo 3 s", "Squats sautés 20", "Progression pistol squat 5 par jambe", "Fentes sautées 20"],
+      2: ["Fentes bulgares 15 par jambe", "Squats sautés 25", "Pistol squat 6 par jambe", "Fentes sautées 24", "Mollets unilatéraux 20 par jambe"],
+      3: ["Fentes bulgares 15 par jambe, tempo 4 s", "Squats sautés 30", "Pistol squat 8 par jambe", "Bonds horizontaux 10", "Fentes sautées 24"]
+    },
+    B: {
+      name: "Circuit B — haut du corps",
+      1: ["Pompes archer 8 par côté", "Pompes claquées 8", "Tractions tempo 3 s à la descente, 5 reps", "Pompes piquées 12", "Dips entre deux chaises 15"],
+      2: ["Pompes archer 10 par côté", "Pompes claquées 10", "Tractions tempo, 6 reps", "Pompes piquées 15", "Dips 18"],
+      3: ["Pompes archer 12 par côté", "Pompes claquées 12", "Tractions L-sit ou tempo, 6 à 8 reps", "Pompes piquées 15", "Dips 20"]
+    },
+    C: {
+      name: "Circuit C — rotation et gainage",
+      1: ["Rotations élastique explosives 20 par côté", "Wood chopper élastique 15 par côté", "Hollow hold 45 s", "Relevés de jambes suspendu 12"],
+      2: ["Rotations élastique 25 par côté", "Wood chopper 20 par côté", "Hollow hold 60 s", "Relevés de jambes 15", "Planche dynamique 45 s"],
+      3: ["Rotations élastique 30 par côté", "Wood chopper 20 par côté", "Hollow hold 75 s", "Relevés de jambes 18", "Rotations en garde de boxe 20 par côté"]
+    }
+  };
+
+  var DAYS = [
+    { d: 1,  w: 1, t: "A", focus: "Garde et pas glissés, tout le shadow dessus.",
+      v: { t: "Les 5 erreurs de débutant à éviter", u: "https://www.youtube.com/watch?v=Pve6AkacEgs", n: "À voir avant tout le reste : tu t'entraînes sans coach pendant trois semaines." } },
+    { d: 2,  w: 1, t: "B", focus: "Déplacements avant, arrière, latéraux.",
+      v: { t: "Tuto — les déplacements en boxe, débutants", u: "https://www.youtube.com/watch?v=7tF5r9HKrQ4", n: "Un round entier de shadow sans frapper, juste les pieds." } },
+    { d: 3,  w: 1, t: "C", focus: "Déplacements en gardant la garde haute.",
+      v: { t: "Les bases du footwork", u: "https://www.youtube.com/watch?v=aTthrs88HLs", n: "" } },
+    { d: 4,  w: 1, t: "L", focus: "Course en zone 2, puis technique lente.",
+      v: { t: "Comment s'entraîner au shadow boxing", u: "https://www.youtube.com/watch?v=NWEThzMnLq8", n: "Jour allégé : c'est le bon moment pour une vidéo de méthode." } },
+    { d: 5,  w: 1, t: "A", focus: "Changements de direction, sortie d'axe.",
+      v: { t: "Playlist déplacements — un épisode", u: "https://www.youtube.com/playlist?list=PL1nrT3wLE8REa5jPUWFnVI-jTRY5JYMIN", n: "" } },
+    { d: 6,  w: 1, t: "B", focus: "Corde en style boxeur, puis tu te filmes.",
+      v: { t: "Sauter à la corde comme un boxeur (4 étapes)", u: "https://www.youtube.com/watch?v=TuzoPmPjJUc", n: "Filme un round de shadow au téléphone et compare-le à la vidéo de la semaine. Ton seul feedback avant le club." } },
+    { d: 7,  w: 1, t: "R", focus: "", v: null },
+
+    { d: 8,  w: 2, t: "A", focus: "Le jab seul, cent répétitions lentes.",
+      v: { t: "Les directs — jab et cross (cours n°1)", u: "https://www.youtube.com/watch?v=fm1tL3RYiTY", n: "Le début d'un cours numéroté : tu suis n°1, n°2, n°3 sur les trois semaines." } },
+    { d: 9,  w: 2, t: "B", focus: "Le 1-2 avec pivot du pied arrière.",
+      v: { t: "Apprendre le shadow boxing en 3 minutes", u: "https://www.youtube.com/watch?v=bQeSUBjOlN8", n: "" } },
+    { d: 10, w: 2, t: "C", focus: "Crochets avant et arrière, coude à hauteur.",
+      v: { t: "Les crochets en boxe anglaise (cours n°2)", u: "https://www.youtube.com/watch?v=i66cbflhmU8", n: "La rotation vient des hanches, le bras ne fait que finir." } },
+    { d: 11, w: 2, t: "L", focus: "Course, puis révision des trois coups.",
+      v: { t: "Cours débutant — jab, uppercut, crochet", u: "https://www.youtube.com/watch?v=nYZ6Inr-3CU", n: "" } },
+    { d: 12, w: 2, t: "A", focus: "Double unders dans le bloc intervalles.",
+      v: { t: "Tuto double unders", u: "https://www.youtube.com/watch?v=opVgBBAKMIU", n: "Objectif de la semaine : 20 d'affilée." } },
+    { d: 13, w: 2, t: "B", focus: "Enchaînements jab-direct-crochet.",
+      v: { t: "Les crochets (cours n°2) — révision", u: "https://www.youtube.com/watch?v=i66cbflhmU8", n: "Deuxième vidéo filmée de toi. Compare avec celle de J6." } },
+    { d: 14, w: 2, t: "R", focus: "", v: null },
+
+    { d: 15, w: 3, t: "A", focus: "Uppercuts, remontée depuis les jambes.",
+      v: { t: "Les uppercuts en boxe anglaise (cours n°3)", u: "https://www.youtube.com/watch?v=Mu4TiGhj6qw", n: "" } },
+    { d: 16, w: 3, t: "B", focus: "Uppercut au corps — le coup d'Ippo.",
+      v: { t: "Les uppercuts — techniques et points clés", u: "https://www.youtube.com/watch?v=4C1GmjogMOg", n: "" } },
+    { d: 17, w: 3, t: "C", focus: "Esquive latérale, le slip.",
+      v: { t: "L'esquive latérale", u: "https://www.youtube.com/watch?v=moQUBT4QUWs", n: "La brique de base. Fléchis les genoux, ne te penche pas depuis le dos." } },
+    { d: 18, w: 3, t: "L", focus: "Course, puis esquive rotative en boucle.",
+      v: { t: "L'esquive rotative", u: "https://www.youtube.com/watch?v=A17N3G8vlpE", n: "Le mouvement en U. Jour allégé : parfait pour l'apprendre sans fatigue." } },
+    { d: 19, w: 3, t: "A", focus: "Esquive puis retour au corps.",
+      v: { t: "Playlist esquives", u: "https://www.youtube.com/playlist?list=PLHgXF3MmsGGB9VksAxZdZwYIwkVZ3rM7O", n: "" } },
+    { d: 20, w: 3, t: "B", focus: "Deux rounds filmés, enchaînements complets.",
+      v: { t: "Playlist Greggot — Apprendre la boxe", u: "https://www.youtube.com/playlist?list=PL25993F043AED7E72", n: "168 vidéos. Garde ce lien : c'est ta référence pour la suite, après le club." } },
+    { d: 21, w: 3, t: "R", focus: "", v: null }
+  ];
+
+  var TYPE_LABEL = { A: "Charge A", B: "Charge B", C: "Charge C", L: "Course", R: "Repos" };
+  var TYPE_CLASS = { A: "c-a", B: "c-b", C: "c-c", L: "", R: "" };
+  var TYPE_TITLE = {
+    A: "Séance complète + jambes",
+    B: "Séance complète + haut du corps",
+    C: "Séance complète + rotation",
+    L: "Course lente 8 km + technique",
+    R: "Repos complet"
+  };
+
+  var SESSION_COUNT = DAYS.filter(function (x) { return x.t !== "R"; }).length;
+
+  function blocksFor(day) {
+    var wk = WEEKS[day.w - 1];
+    if (day.t === "R") {
+      return [
+        { n: "—", t: "Repos complet", s: "Une balade si tu veux bouger. Rien de structuré.", d: "" },
+        { n: "—", t: "Étirements", s: "Mollets, ischios, hanches, épaules.", d: "10 min" }
+      ];
+    }
+    if (day.t === "L") {
+      return [
+        { n: "1", t: "Course lente", s: "En aisance respiratoire : tu dois pouvoir tenir une conversation du début à la fin. Si tu ne peux pas parler, c'est trop rapide. Pas de corde aujourd'hui — la course la remplace.", d: "8 km" },
+        { n: "2", t: "Shadow technique", s: "Lent et propre. Le thème de la semaine, rien d'autre.", d: "4 × 3 min" },
+        { n: "3", t: "Mobilité", s: "Mollets en priorité après la course, puis hanches, chevilles, épaules.", d: "10 min" }
+      ];
+    }
+    var circ = CIRCUITS[day.t];
+    return [
+      { n: "1", t: "Corde — échauffement", s: "En continu. Ce n'est plus l'entraînement, c'est la mise en route.", d: wk.corde.replace(" continu", "") },
+      { n: "2", t: "Shadow technique", s: "Rounds de 3 min, 1 min de repos. Thème de la semaine.", d: wk.shadow },
+      { n: "3", t: "Shadow élastique", s: "Élastique dans le dos, une extrémité par main, directs contre la résistance. 1 min de repos entre les rounds.", d: wk.elast },
+      { n: "4", t: circ.name, s: circ[day.w].join(" · "), d: wk.rounds + " × 3 min" },
+      { n: "5", t: "Intervalles corde", s: "30 s à fond — double unders ou montées de genoux — puis 30 s léger, sans t'arrêter.", d: wk.inter },
+      { n: "6", t: "Cou et gainage", s: "Gainage, puis cou en isométrie contre la main : 4 × 20 s dans chaque direction.", d: "8 min" }
+    ];
+  }
+
+  /* ---------- état ---------- */
+
+  var state = { startDate: "", done: {}, weights: [] };
+  var canWrite = true, activeWeek = 1, openDay = 1;
+
+  function firstDayOfWeek(w) {
+    var d = DAYS.find(function (x) { return x.w === w; });
+    return d ? d.d : null;
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function fmtKg(v) { return (Math.round(v * 10) / 10).toString().replace(".", ",") + " kg"; }
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    var p = iso.split("-");
+    if (p.length !== 3) return iso;
+    return p[2] + "/" + p[1];
+  }
+  function todayISO() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function currentDayNumber() {
+    if (!state.startDate) return null;
+    var s = new Date(state.startDate + "T00:00:00");
+    if (isNaN(s.getTime())) return null;
+    var t = new Date(todayISO() + "T00:00:00");
+    var n = Math.floor((t - s) / 86400000) + 1;
+    return (n >= 1 && n <= 21) ? n : null;
+  }
+
+  /* ---------- rendu ---------- */
+
+  function renderMeter() {
+    var n = 0;
+    DAYS.forEach(function (d) { if (d.t !== "R" && state.done[d.d]) n++; });
+    $("barfill").style.width = (n / SESSION_COUNT * 100) + "%";
+    $("metern").textContent = n + " / " + SESSION_COUNT + " séances";
+  }
+
+  function renderStats() {
+    var last = state.weights.length ? state.weights[state.weights.length - 1] : null;
+    var el = $("s-last"), sub = $("s-last-sub");
+    if (!last) {
+      el.innerHTML = "—<small id='s-last-sub'>aucune pesée enregistrée</small>";
+      return;
+    }
+    var diff = last.kg - START_KG;
+    var txt = diff === 0 ? "au point de départ"
+      : (diff < 0 ? "−" + fmtKg(Math.abs(diff)) : "+" + fmtKg(diff)) + " depuis le départ";
+    el.innerHTML = fmtKg(last.kg) + "<small>" + txt + " · " + fmtDate(last.date) + "</small>";
+  }
+
+  function renderStart() {
+    $("startdate").value = state.startDate || "";
+    var n = currentDayNumber();
+    var h = $("starthint");
+    if (!state.startDate) h.textContent = "Choisis ta date de départ pour voir le jour en cours.";
+    else if (n) h.innerHTML = "Aujourd'hui : <b>jour " + n + "</b> sur 21.";
+    else h.textContent = "Hors des 21 jours du plan.";
+  }
+
+  /* Amène la vue sur le jour en cours — au premier chargement et quand la date change,
+     jamais sur une mise à jour de progression (sinon la carte ouverte se refermerait). */
+  function jumpToToday() {
+    var n = currentDayNumber();
+    if (!n) return;
+    var day = DAYS.find(function (d) { return d.d === n; });
+    if (!day) return;
+    activeWeek = day.w;
+    openDay = n;
+  }
+
+  function renderTabs() {
+    [1, 2, 3].forEach(function (i) {
+      $("tab-" + i).setAttribute("aria-selected", i === activeWeek ? "true" : "false");
+    });
+  }
+
+  function renderWeekHead() {
+    var wk = WEEKS[activeWeek - 1];
+    var el = $("weekhead");
+    el.className = "weekhead";
+    el.innerHTML = "";
+    var h = document.createElement("h2");
+    h.textContent = "Semaine " + wk.n + " — " + wk.theme;
+    el.appendChild(h);
+    var ch = document.createElement("p");
+    ch.className = "charge";
+    ch.textContent = "Corde " + wk.corde + "  ·  shadow " + wk.shadow + "  ·  élastique " + wk.elast + "  ·  circuit " + wk.rounds + " rounds  ·  intervalles " + wk.inter;
+    el.appendChild(ch);
+    var ul = document.createElement("ul");
+    ul.className = "goals";
+    wk.goals.forEach(function (g) {
+      var li = document.createElement("li");
+      var sp = document.createElement("span");
+      sp.textContent = g;
+      li.appendChild(sp);
+      ul.appendChild(li);
+    });
+    el.appendChild(ul);
+    var f = document.createElement("div");
+    f.className = "focus";
+    var b = document.createElement("b"); b.textContent = "Le point technique de la semaine";
+    f.appendChild(b);
+    f.appendChild(document.createTextNode(wk.focus));
+    el.appendChild(f);
+  }
+
+  function renderDays() {
+    var host = $("days");
+    host.innerHTML = "";
+    var today = currentDayNumber();
+    DAYS.filter(function (d) { return d.w === activeWeek; }).forEach(function (day) {
+      var card = document.createElement("article");
+      card.className = "day" + (day.t === "R" ? " is-rest" : "") + (state.done[day.d] ? " done" : "") + (today === day.d ? " is-today" : "");
+
+      var top = document.createElement("div");
+      top.className = "day-top";
+
+      var num = document.createElement("div");
+      num.className = "daynum";
+      num.textContent = "Jour " + day.d;
+      top.appendChild(num);
+
+      var name = document.createElement("div");
+      name.className = "dayname";
+      name.textContent = TYPE_TITLE[day.t];
+      if (day.focus) {
+        var em = document.createElement("em");
+        em.textContent = day.focus;
+        name.appendChild(em);
+      }
+      if (day.v) {
+        var vl = document.createElement("a");
+        vl.className = "vlink";
+        vl.href = day.v.u;
+        vl.target = "_blank";
+        vl.rel = "noopener noreferrer";
+        vl.textContent = day.v.t;
+        name.appendChild(vl);
+      }
+      top.appendChild(name);
+
+      var pill = document.createElement("span");
+      pill.className = "pill " + TYPE_CLASS[day.t];
+      pill.textContent = TYPE_LABEL[day.t];
+      top.appendChild(pill);
+
+      if (day.t !== "R") {
+        var lab = document.createElement("label");
+        lab.className = "chk";
+        lab.title = "Séance faite";
+        var cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.id = "chk-" + day.d;
+        cb.checked = !!state.done[day.d];
+        cb.disabled = !canWrite;
+        cb.addEventListener("change", function () { toggleDone(day.d, cb.checked); });
+        lab.appendChild(cb);
+        top.appendChild(lab);
+      }
+
+      var tg = document.createElement("button");
+      tg.className = "toggle";
+      tg.type = "button";
+      tg.setAttribute("aria-expanded", openDay === day.d ? "true" : "false");
+      tg.setAttribute("aria-label", "Détail du jour " + day.d);
+      tg.textContent = openDay === day.d ? "−" : "+";
+      tg.addEventListener("click", function () {
+        openDay = (openDay === day.d) ? null : day.d;
+        renderDays();
+      });
+      top.appendChild(tg);
+
+      card.appendChild(top);
+
+      if (openDay === day.d) {
+        var body = document.createElement("div");
+        body.className = "day-body";
+        var ul = document.createElement("ul");
+        ul.className = "blocks";
+        blocksFor(day).forEach(function (b) {
+          var li = document.createElement("li");
+          var n = document.createElement("span"); n.className = "bn"; n.textContent = b.n;
+          var t = document.createElement("span"); t.className = "bt";
+          var st = document.createElement("strong"); st.textContent = b.t;
+          var ss = document.createElement("span"); ss.textContent = b.s;
+          t.appendChild(st); t.appendChild(ss);
+          var d = document.createElement("span"); d.className = "bd"; d.textContent = b.d;
+          li.appendChild(n); li.appendChild(t); li.appendChild(d);
+          ul.appendChild(li);
+        });
+        body.appendChild(ul);
+
+        if (day.v && day.v.n) {
+          var v = document.createElement("div");
+          v.className = "vid";
+          var lb = document.createElement("span"); lb.className = "lbl"; lb.textContent = "Sur la vidéo du jour";
+          var p = document.createElement("p"); p.textContent = day.v.n;
+          v.appendChild(lb); v.appendChild(p);
+          body.appendChild(v);
+        }
+        card.appendChild(body);
+      }
+
+      host.appendChild(card);
+    });
+  }
+
+  function renderLog() {
+    var host = $("logwrap");
+    host.innerHTML = "";
+    if (!state.weights.length) {
+      var e = document.createElement("p");
+      e.className = "empty";
+      e.textContent = "Aucune pesée pour l'instant. Ta première ligne, c'est 83,5 kg au jour 1 — enregistre-la ci-dessus.";
+      host.appendChild(e);
+      return;
+    }
+    var tbl = document.createElement("table");
+    tbl.className = "log";
+    var thead = document.createElement("thead");
+    var trh = document.createElement("tr");
+    ["Date", "Poids", "Écart", ""].forEach(function (h) {
+      var th = document.createElement("th"); th.textContent = h; trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+    tbl.appendChild(thead);
+    var tb = document.createElement("tbody");
+    state.weights.forEach(function (w, i) {
+      var tr = document.createElement("tr");
+      var td1 = document.createElement("td"); td1.textContent = fmtDate(w.date);
+      var td2 = document.createElement("td"); td2.textContent = fmtKg(w.kg);
+      var prev = i > 0 ? state.weights[i - 1].kg : START_KG;
+      var dd = w.kg - prev;
+      var td3 = document.createElement("td");
+      td3.className = "delta " + (dd < 0 ? "down" : (dd > 0 ? "up" : ""));
+      td3.textContent = dd === 0 ? "=" : (dd < 0 ? "−" : "+") + (Math.round(Math.abs(dd) * 10) / 10).toString().replace(".", ",");
+      var td4 = document.createElement("td"); td4.className = "act";
+      if (canWrite) {
+        var del = document.createElement("button");
+        del.type = "button"; del.textContent = "retirer";
+        del.setAttribute("aria-label", "Retirer la pesée du " + fmtDate(w.date));
+        del.addEventListener("click", function () { removeWeight(i); });
+        td4.appendChild(del);
+      }
+      tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);
+    host.appendChild(tbl);
+  }
+
+  function renderAll() {
+    renderMeter(); renderStats(); renderStart(); renderTabs(); renderWeekHead(); renderDays(); renderLog();
+  }
+
+  /* ---------- persistance : stockage local de l'appareil ---------- */
+
+  var LS_KEY = "plan-boxe-21j/v1";
+
+  function setSync(msg) { $("sync").textContent = msg; }
+
+  function goReadOnly() {
+    canWrite = false;
+    setSync("Stockage indisponible sur cet appareil (navigation privee ?) : ta progression ne sera pas conservee.");
+    $("w-add").disabled = true;
+    $("startdate").disabled = true;
+    renderDays(); renderLog();
+  }
+
+  function persist() {
+    if (!canWrite) return;
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        startDate: state.startDate, done: state.done, weights: state.weights
+      }));
+      setSync("Progression enregistree sur cet appareil.");
+    } catch (e) { goReadOnly(); }
+  }
+
+  function loadPersisted() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) return true;
+      var v = JSON.parse(raw);
+      if (v && typeof v === "object") {
+        state.startDate = typeof v.startDate === "string" ? v.startDate : "";
+        state.done = (v.done && typeof v.done === "object") ? Object.assign({}, v.done) : {};
+        state.weights = Array.isArray(v.weights) ? v.weights.filter(function (e) {
+          return e && typeof e.date === "string" && isFinite(e.kg);
+        }) : [];
+        state.weights.sort(function (a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+      }
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function saveState() { persist(); }
+  function saveWeights() { persist(); }
+
+  function exportJSON() {
+    var payload = JSON.stringify({
+      startDate: state.startDate, done: state.done, weights: state.weights,
+      exportedAt: new Date().toISOString()
+    }, null, 2);
+    var blob = new Blob([payload], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "plan-boxe-21j-sauvegarde.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  }
+
+  function toggleDone(dayNum, on) {
+    if (on) state.done[dayNum] = true; else delete state.done[dayNum];
+    renderMeter(); renderDays();
+    saveState();
+  }
+
+  function removeWeight(i) {
+    state.weights = state.weights.slice(0, i).concat(state.weights.slice(i + 1));
+    renderLog(); renderStats();
+    saveWeights();
+  }
+
+  /* ---------- interactions ---------- */
+
+  [1, 2, 3].forEach(function (i) {
+    $("tab-" + i).addEventListener("click", function () {
+      activeWeek = i; openDay = firstDayOfWeek(i);
+      renderTabs(); renderWeekHead(); renderDays();
+    });
+  });
+
+  $("startdate").addEventListener("change", function () {
+    state.startDate = this.value || "";
+    jumpToToday();
+    renderStart(); renderTabs(); renderWeekHead(); renderDays();
+    saveState();
+  });
+
+  $("w-date").value = todayISO();
+
+  $("w-add").addEventListener("click", function () {
+    var d = $("w-date").value, kg = parseFloat($("w-kg").value);
+    if (!d || !isFinite(kg) || kg < 40 || kg > 200) {
+      setSync("Il manque une date ou un poids valide (entre 40 et 200 kg).");
+      return;
+    }
+    state.weights = state.weights.concat([{ date: d, kg: Math.round(kg * 10) / 10 }]);
+    state.weights.sort(function (a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+    $("w-kg").value = "";
+    renderLog(); renderStats();
+    setSync("Pesée enregistrée.");
+    saveWeights();
+  });
+
+  /* ---------- demarrage ---------- */
+
+  if (!loadPersisted()) canWrite = false;
+  jumpToToday();
+  renderAll();
+
+  var btnExport = $("export");
+  if (btnExport) btnExport.addEventListener("click", exportJSON);
+
+  if (!canWrite) {
+    goReadOnly();
+  } else if (state.startDate || state.weights.length) {
+    setSync("Progression chargee depuis cet appareil.");
+  } else {
+    setSync("Tes seances cochees et tes pesees sont enregistrees sur cet appareil.");
+  }
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+})();
+</script>
+</body>
+</html>
