@@ -315,7 +315,7 @@
 
   <section class="panel">
     <h2>L'assiette</h2>
-    <p class="sub">2 400 à 2 500 kcal par jour. C'est 80 % du résultat sur le gras — aucune série supplémentaire ne compensera une assiette approximative.</p>
+    <p class="sub">2 400 à 2 500 kcal par jour. C'est 80 % du résultat sur le gras — aucune série supplémentaire ne compensera une assiette approximative. Les portions se mesurent à la main, pas à la balance : <b>1 paume</b> de viande ou de poisson vaut 25 à 30 g de protéines, <b>1 poing</b> de féculents cuits vaut une portion, <b>1 pouce</b> d'huile vaut une portion de gras.</p>
     <dl class="macros">
       <div class="macro"><dt>Calories</dt><dd>2 450</dd></div>
       <div class="macro"><dt>Protéines</dt><dd>160 g</dd></div>
@@ -323,21 +323,26 @@
       <div class="macro"><dt>Glucides</dt><dd>280 g</dd></div>
     </dl>
     <ul class="meals">
-      <li><span class="when">Petit-déjeuner</span><span>4 œufs · 60 g de pain complet · 1 fruit</span></li>
-      <li><span class="when">Collation</span><span>400 g de skyr ou fromage blanc 0 % · 30 g d'amandes</span></li>
-      <li><span class="when">Déjeuner</span><span>200 g de viande hachée 5 % · 80 g de riz ou semoule (poids sec) · légumes à volonté · 1 c. à soupe d'huile d'olive</span></li>
+      <li><span class="when">Petit-déjeuner</span><span>4 œufs · 1 part de pain · 1 fruit</span></li>
+      <li><span class="when">Déjeuner</span><span>2 paumes de viande ou de poisson · 1 poing de riz ou de semoule cuits · légumes à volonté</span></li>
+      <li><span class="when">Collation</span><span>Le laitage qu'il y a à la maison, ou 2 œufs · 1 fruit · une petite poignée de fruits secs</span></li>
       <li><span class="when">Avant séance</span><span>1 banane ou 3 dattes</span></li>
-      <li><span class="when">Dîner</span><span>200 g de poisson blanc ou thon · légumes · 50 g de féculents</span></li>
+      <li><span class="when">Dîner</span><span>2 paumes de viande ou de poisson · 1 poing de féculents · légumes</span></li>
       <li><span class="when">Eau</span><span>3 litres par jour, et tu bois pendant la séance</span></li>
     </ul>
     <ol class="rules">
-      <li>Les sources s'échangent librement entre elles — viande hachée 5 %, poisson blanc, thon, œufs — mais les quantités restent. Pas de poulet : ce plan n'en contient pas.</li>
+      <li>Les sources s'échangent librement entre elles — viande, poisson, thon, œufs — mais le nombre de paumes reste. Pas de poulet : ce plan n'en contient pas.</li>
       <li>Si tu stagnes deux semaines d'affilée, enlève 200 kcal. Si tu perds plus d'un kilo par semaine, rajoutes-en 200.</li>
       <li>Sept à huit heures de sommeil, à heures fixes. En déficit, le manque de sommeil fait perdre du muscle à la place du gras.</li>
+      <li>8 000 à 10 000 pas par jour, en plus des séances. Environ 300 kcal, sans fatigue et sans impact sur la récupération — c'est le levier le moins coûteux du plan.</li>
     </ol>
     <div class="warn">
-      <b>Le piège</b>
-      À 83,5 kg et avec de la corde tous les jours, les mollets, les tibias et les tendons d'Achille prennent cher. Chaussures correctes, jamais pieds nus sur du carrelage ou du béton. Une douleur pointue au tibia : tu passes la corde en marche rapide deux ou trois jours. Une périostite en semaine 2 coûterait tout le mois.
+      <b>Quand tu ne choisis pas le menu</b>
+      Tu manges chez ton oncle, donc tu ne décides ni des plats ni des courses. Trois règles suffisent. Tu ne refuses jamais le plat : tu ajustes la quantité de pain et de féculents, jamais celle de la viande ou du poisson. Le pain est la plus grosse variable d'un repas de maison — une portion généreuse ajoute 300 à 500 kcal sans que tu t'en rendes compte, donc un morceau, pas trois. Et le thé sucré compte : trois verres dans la journée font 200 à 300 kcal invisibles, demande-le sans sucre ou bois de l'eau. Quand un repas t'échappe complètement, les œufs sont ta sécurité : disponibles partout, 6 g de protéines pièce, et personne ne trouve étrange que tu t'en fasses.
+    </div>
+    <div class="warn">
+      <b>Tes tibias</b>
+      Tu as déjà ressenti une douleur au bord interne du tibia après avoir sauté. C'est pour ça que la corde est passée à 5 min et que les intervalles se font en course. Quatre règles, non négociables : sur un tapis et jamais sur du carrelage, en chaussures de running amorties, sauts de 2-3 cm sur l'avant du pied, rotation par les poignets et pas par les bras. Le contrôle le plus simple reste le bruit — des atterrissages qu'on entend, c'est trop haut. Si la douleur revient malgré ça, ou si elle devient un point précis que tu couvres du bout d'un doigt, tu arrêtes les sauts et tu vas voir un médecin ou un kiné.
     </div>
     <div class="warn">
       <b>La course</b>
@@ -366,11 +371,11 @@
     {
       n: 1,
       theme: "Garde et déplacements",
-      corde: "15 min continu", shadow: "5 × 3 min", elast: "3 × 2 min",
+      corde: "5 min", shadow: "5 × 3 min", elast: "3 × 2 min",
       rounds: 4, inter: "10 × (30 s / 30 s)",
       goals: [
         "Tenir les 5 rounds de shadow sans que les mains descendent une seule fois.",
-        "Les 15 min de corde en continu deviennent un échauffement, pas un effort.",
+        "5 min de corde en sauts bas, et aucune douleur au tibia le lendemain.",
         "Fin de semaine : 82,8 kg."
       ],
       focus: "La garde et les pieds. Rien d'autre. Mains aux pommettes, menton rentré, coudes collés. Pas glissés, jamais les pieds qui se croisent, jamais qui se collent."
@@ -378,11 +383,11 @@
     {
       n: 2,
       theme: "Jab, direct, crochets",
-      corde: "18 min continu", shadow: "5 × 3 min", elast: "4 × 2 min",
+      corde: "8 min", shadow: "5 × 3 min", elast: "4 × 2 min",
       rounds: 4, inter: "12 × (30 s / 30 s)",
       goals: [
         "Le 1-2 avec retour de main systématique et pivot du pied arrière.",
-        "20 double unders d'affilée.",
+        "8 min de corde, toujours silencieuse, toujours sans douleur.",
         "Fin de semaine : 82,1 kg."
       ],
       focus: "Le jab part du menton et la main revient toujours à la garde. Cent coups lents et propres valent cinq cents rapides et sales."
@@ -390,7 +395,7 @@
     {
       n: 3,
       theme: "Uppercuts et esquives",
-      corde: "20 min continu", shadow: "6 × 3 min", elast: "5 × 2 min",
+      corde: "10 min", shadow: "6 × 3 min", elast: "5 × 2 min",
       rounds: 5, inter: "14 × (30 s / 30 s)",
       goals: [
         "Enchaîner esquive rotative puis crochet au corps sans temps mort.",
@@ -404,9 +409,9 @@
   var CIRCUITS = {
     A: {
       name: "Circuit A — jambes",
-      1: ["Fentes bulgares 12 par jambe, tempo 3 s", "Squats sautés 20", "Progression pistol squat 5 par jambe", "Fentes sautées 20"],
-      2: ["Fentes bulgares 15 par jambe", "Squats sautés 25", "Pistol squat 6 par jambe", "Fentes sautées 24", "Mollets unilatéraux 20 par jambe"],
-      3: ["Fentes bulgares 15 par jambe, tempo 4 s", "Squats sautés 30", "Pistol squat 8 par jambe", "Bonds horizontaux 10", "Fentes sautées 24"]
+      1: ["Fentes bulgares 12 par jambe, tempo 3 s", "Squats au poids du corps 25, tempo 3 s à la descente", "Progression pistol squat 5 par jambe", "Élévations de mollets 20 par jambe, 3 s à la descente", "Chaise contre le mur 45 s"],
+      2: ["Fentes bulgares 15 par jambe", "Squats sautés 20 — seulement si aucune douleur au tibia, sinon squats tempo 30", "Pistol squat 6 par jambe", "Élévations de mollets 20 par jambe, 3 s à la descente", "Fentes statiques 15 par jambe"],
+      3: ["Fentes bulgares 15 par jambe, tempo 4 s", "Squats sautés 30 — si aucune douleur", "Pistol squat 8 par jambe", "Élévations de mollets 25 par jambe", "Fentes sautées 20 — si aucune douleur"]
     },
     B: {
       name: "Circuit B — haut du corps",
@@ -445,8 +450,8 @@
       v: { t: "Les crochets en boxe anglaise (cours n°2)", u: "https://www.youtube.com/watch?v=i66cbflhmU8", n: "La rotation vient des hanches, le bras ne fait que finir." } },
     { d: 11, w: 2, t: "L", focus: "Course, puis révision des trois coups.",
       v: { t: "Cours débutant — jab, uppercut, crochet", u: "https://www.youtube.com/watch?v=nYZ6Inr-3CU", n: "" } },
-    { d: 12, w: 2, t: "A", focus: "Double unders dans le bloc intervalles.",
-      v: { t: "Tuto double unders", u: "https://www.youtube.com/watch?v=opVgBBAKMIU", n: "Objectif de la semaine : 20 d'affilée." } },
+    { d: 12, w: 2, t: "A", focus: "Corde : sauts bas, rotation aux poignets.",
+      v: { t: "Corde à sauter — les bases", u: "https://www.youtube.com/watch?v=uA1FswfENCs", n: "Regarde précisément ce que font ses poignets et la hauteur de ses sauts. C'est là que se joue ton tibia." } },
     { d: 13, w: 2, t: "B", focus: "Enchaînements jab-direct-crochet.",
       v: { t: "Les crochets (cours n°2) — révision", u: "https://www.youtube.com/watch?v=i66cbflhmU8", n: "Deuxième vidéo filmée de toi. Compare avec celle de J6." } },
     { d: 14, w: 2, t: "R", focus: "", v: null },
@@ -495,11 +500,11 @@
     }
     var circ = CIRCUITS[day.t];
     return [
-      { n: "1", t: "Corde — échauffement", s: "En continu. Ce n'est plus l'entraînement, c'est la mise en route.", d: wk.corde.replace(" continu", "") },
+      { n: "1", t: "Corde — échauffement", s: "Sur un tapis, jamais sur du carrelage. Sauts de 2-3 cm, sur l'avant du pied, rotation par les poignets et coudes aux côtes. Si on entend tes atterrissages, tu sautes trop haut.", d: wk.corde },
       { n: "2", t: "Shadow technique", s: "Rounds de 3 min, 1 min de repos. Thème de la semaine.", d: wk.shadow },
       { n: "3", t: "Shadow élastique", s: "Élastique dans le dos, une extrémité par main, directs contre la résistance. 1 min de repos entre les rounds.", d: wk.elast },
-      { n: "4", t: circ.name, s: circ[day.w].join(" · "), d: wk.rounds + " × 3 min" },
-      { n: "5", t: "Intervalles corde", s: "30 s à fond — double unders ou montées de genoux — puis 30 s léger, sans t'arrêter.", d: wk.inter },
+      { n: "4", t: circ.name, s: "Les exercices dans l'ordre, sans repos entre eux. 1 min de repos à la fin de chaque tour. → " + circ[day.w].join(" · "), d: wk.rounds + " tours" },
+      { n: "5", t: "Intervalles en course", s: "Dehors : 30 s en course rapide, puis 30 s en footing lent, sans t'arrêter. Pas de saut — la course ne réveille pas ton tibia.", d: wk.inter },
       { n: "6", t: "Cou et gainage", s: "Gainage, puis cou en isométrie contre la main : 4 × 20 s dans chaque direction.", d: "8 min" }
     ];
   }
@@ -594,7 +599,7 @@
     el.appendChild(h);
     var ch = document.createElement("p");
     ch.className = "charge";
-    ch.textContent = "Corde " + wk.corde + "  ·  shadow " + wk.shadow + "  ·  élastique " + wk.elast + "  ·  circuit " + wk.rounds + " rounds  ·  intervalles " + wk.inter;
+    ch.textContent = "Corde " + wk.corde + "  ·  shadow " + wk.shadow + "  ·  élastique " + wk.elast + "  ·  circuit " + wk.rounds + " tours  ·  intervalles " + wk.inter;
     el.appendChild(ch);
     var ul = document.createElement("ul");
     ul.className = "goals";
